@@ -22,4 +22,5 @@ public abstract class Game {
     public abstract boolean checkForWin();
     public abstract void turn();
     public abstract void incTurn();
+    public abstract void gameLoop();
 }

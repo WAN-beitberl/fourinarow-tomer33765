@@ -1,116 +1,133 @@
 package Test1ArbaBeshura;
 
 public class Board {
-    public enum square{EMPTY, RED, YELLOW}
 
-    private square[][] matrix;
+    private char[][] matrix;
 
     public Board(int height, int width)
     {
-        this.matrix = new square[height][width];
+        this.matrix = new char[height][width];
 
         for (int i = 0; i < height; i++)
             for (int j = 0; j < width; j++)
-                this.matrix[i][j] = square.EMPTY;
+                this.matrix[i][j] = ' ';
     }
 
     public boolean isEmpty(int row, int col)
     {
-        return (this.matrix[row][col] == square.EMPTY);
+        return (this.matrix[row][col] == ' ');
     }
 
-    public void setSquare(int row, int col, square color)
+    public void setSquare(int row, int col, char sign)
     {
-        this.matrix[row][col] = color;
+        this.matrix[row][col] = sign;
     }
 
     public void display()
     {
         for (int i = 0; i < this.matrix.length; i++) {
             for (int j = 0; j < this.matrix[0].length; j++) {
-                switch (this.matrix[i][j]) {
-                    case EMPTY -> System.out.print(" |");
-                    case RED -> System.out.print("R|");
-                    case YELLOW -> System.out.print("Y|");
-                }
+                System.out.print(" | "+this.matrix[i][j]);
             }
-            System.out.println();
+            System.out.println(" |");
         }
     }
 
-    public boolean checkRow(int row, int col)
+    public boolean checkRow(int row, char color)
     {
-        boolean flag1 = true;
-        boolean flag2 = true;
-        for (int i = 1; i < 4; i++)
+        int discsInARow = 0;
+
+        for (int i = 0; i < this.matrix[0].length; i++)
         {
-            if(col+i == this.matrix[0].length) { flag1 = false;}
-            else if(flag1)
+            if(this.matrix[row][i] == color)
             {
-                if(this.matrix[row][col+i-1] != this.matrix[row][col+i]) flag1 = false;
+                discsInARow++;
+                if(discsInARow == ConnectFourGame.NUM_OF_DISCS_TO_WIN)
+                    return true;
             }
-            if(col-i+1 == 0) { flag2 = false;}
-            else if(flag2)
-            {
-                if(this.matrix[row][col-i+1] != this.matrix[row][col-i]) flag2 = false;
-            }
+            else discsInARow = 0;
         }
 
-        return (flag1||flag2);
+        return false;
     }
 
-    public boolean checkCol(int row, int col)
+    public boolean checkCol(int col, char color)
     {
-        boolean flag1 = true;
-        boolean flag2 = true;
-        for (int i = 1; i < 4; i++)
+        int discsInARow = 0;
+
+        for (int i = 0; i < this.matrix.length; i++)
         {
-            if(row+i == this.matrix.length) { flag1 = false;}
-            else if(flag1)
+            if(this.matrix[i][col] == color)
             {
-                if(this.matrix[row+i-1][col] != this.matrix[row+i][col]) flag1 = false;
+                discsInARow++;
+                if(discsInARow == ConnectFourGame.NUM_OF_DISCS_TO_WIN)
+                    return true;
             }
-            if(row-i+1 == 0) { flag2 = false;}
-            else if(flag2)
-            {
-                if(this.matrix[row-i+1][col] != this.matrix[row-i][col]) flag2 = false;
-            }
+            else discsInARow = 0;
         }
 
-        return (flag1||flag2);
+        return false;
     }
 
-    public boolean checkDiag(int row, int col)
+    public boolean checkDiagByIndex(int row, int col, char color)
     {
-        boolean flag1 = true;
-        boolean flag2 = true;
-        boolean flag3 = true;
-        boolean flag4 = true;
-        for (int i = 1; i < 4; i++)
+        int startRowLeft = row;
+        int startRowRight = row;
+        int startColRight = col;
+        int startColLeft = col;
+
+        while(startRowLeft > 0 && startColLeft > 0)
         {
-            if(row+i == this.matrix.length||col+i==this.matrix[0].length)
-            { flag1 = false;}
-            else if(flag1)
-            {
-                if(this.matrix[row+i-1][col+i-1] != this.matrix[row+i][col+i]) flag1 = false;
-            }
-            if(row+i == this.matrix.length||col-i+1==0) { flag2 = false;}
-            else if(flag2)
-            {
-                if(this.matrix[row+i-1][col-i+1] != this.matrix[row+i][col-i]) flag2 = false;
-            }
-            if(row-i+1 == 0||col+i==this.matrix[0].length) { flag3 = false;}
-            else if(flag3)
-            {
-                if(this.matrix[row-i+1][col+i-1] != this.matrix[row-i][col+i]) flag3 = false;
-            }
-            if(row-i+1 == 0||col-i+1==0) { flag4 = false;}
-            else if(flag4)
-            {
-                if(this.matrix[row-i+1][col-i+1] != this.matrix[row-i][col-i]) flag4 = false;
-            }
+            startRowLeft--; startColLeft--;
         }
 
-        return (flag1||flag2||flag3||flag4);
+        while(startRowRight > 0 && startColRight < this.matrix[0].length - 1)
+        {
+            startRowRight--; startColRight++;
+        }
+
+        return (checkDiagFront(startRowLeft, startColLeft, color) ||
+                checkDiagBack(startRowRight, startColRight, color));
     }
+
+    public boolean checkDiagFront(int row, int col, char color)
+    {
+        int discsInARow = 0;
+        int curRow = row;
+
+        for (int curCol = col; curCol < this.matrix[0].length &&
+                curRow < this.matrix.length; curCol++, curRow++)
+        {
+            if(this.matrix[curRow][curCol] == color)
+            {
+                discsInARow++;
+                if(discsInARow == ConnectFourGame.NUM_OF_DISCS_TO_WIN)
+                    return true;
+            }
+            else discsInARow = 0;
+        }
+
+        return false;
+    }
+
+    public boolean checkDiagBack(int row, int col, char color)
+    {
+        int discsInARow = 0;
+        int curRow = row;
+
+        for (int curCol = col; curCol > 0 &&
+                curRow < this.matrix.length; curCol--, curRow++)
+        {
+            if(this.matrix[curRow][curCol] == color)
+            {
+                discsInARow++;
+                if(discsInARow == ConnectFourGame.NUM_OF_DISCS_TO_WIN)
+                    return true;
+            }
+            else discsInARow = 0;
+        }
+
+        return false;
+    }
+
 }

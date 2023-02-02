@@ -3,13 +3,16 @@ import Test1ArbaBeshura.Board;
 
 public class Player {
     private String name;
-    private Board.square color;
+    private static char currentChar = 'A';
+    private char gameSign;
     private int numWins;
 
     public Player(String name)
     {
         this.name = name;
         this.numWins = 0;
+        this.gameSign = currentChar;
+        currentChar++;
     }
 
     public void win()
@@ -23,12 +26,6 @@ public class Player {
         return this.name;
     }
 
-    public void setColor(Board.square color)
-    {
-        this.color = color;
-    }
-
-    public Board.square getColor() {
-        return color;
-    }
+    public char getGameSign() { return this.gameSign; }
+    public int getNumWins() { return this.numWins; }
 }
